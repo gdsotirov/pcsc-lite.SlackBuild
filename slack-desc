@@ -1,0 +1,12 @@
+pcsc-lite: PC/SC Lite (Smart cards middleware for the PC/SC standard)
+pcsc-lite:
+pcsc-lite: PC/SC Lite is a middleware to access a smart card using PC/SC
+pcsc-lite: standard (library and daemon). The purpose of PC/SC Lite is to
+pcsc-lite: provide a Windows(R) SCard interface in a very small form factor
+pcsc-lite: for communicating to smartcards and readers.
+pcsc-lite: The PC/SC daemon is used to dynamically allocate/deallocate
+pcsc-lite: reader drivers at runtime and manage connections to the readers.
+pcsc-lite: The PC/SC Lite library is used to connect to the PC/SC daemon
+pcsc-lite: from a client application and provide access to the desired
+pcsc-lite: reader.
+pcsc-lite: Packaged by Georgi D. Sotirov <gdsotirov@dir.bg>
