@@ -1,0 +1,97 @@
+#!/bin/sh
+#
+# SlackBuild for PC/SC Lite
+# Written by Georgi D. Sotirov <gdsotirov@dir.bg>
+#
+
+. /etc/slack-package.conf
+
+NAME=pcsc-lite
+VERSION=1.4.4
+BUILD=1
+DRIVERS_DIR=/usr/lib/pcsc/drivers
+SRVCS_DIR=/usr/lib/pcsc/services
+
+ARCH=${ARCH:-i486}
+
+TMP=${TMP:-/tmp}
+CWD=${CWD:-`pwd`}
+
+cd $TMP
+tar -zxvf $CWD/$NAME-$VERSION.tar.gz
+SRC=$TMP/$NAME-$VERSION
+cd $SRC
+fix_source
+
+./configure --build=$ARCH-slackware-linux \
+            --host=$ARCH-slackware-linux \
+            --prefix=/usr \
+            --sysconfdir=/etc \
+            --localstatedir=/var \
+            --mandir=/usr/man \
+            --docdir=/usr/doc/$NAME-$VERSION \
+            --enable-confdir=/etc \
+            --enable-usbdropdir="$DRIVERS_DIR" \
+            --enable-muscledropdir="$SRVCS_DIR" \
+            --enable-ipcdir=/var/run \
+            --enable-runpid=/var/run/pcscd.pid \
+            --enable-shared=yes \
+            --enable-static=no
+
+make || exit 1
+
+PKG="$TMP/package-$NAME"
+mkdir -p $PKG
+
+make DESTDIR=$PKG install
+
+# Additional install steps
+install -m 755 -d $PKG/etc/rc.d
+install -m 755 $CWD/rc.pcscd $PKG/etc/rc.d/rc.pcscd.new
+
+mv $PKG/etc/reader.conf.d/reader.conf $PKG/etc/reader.conf.d/reader.conf.new
+
+# Create the directory for drivers and such (not included with this package)
+install -m 755 -d $PKG/usr/lib/pcsc/{drivers,services}
+
+bin_perms $PKG
+sbin_perms $PKG
+( cd $PKG; strip_bin; strip_lib )
+gzip_man $PKG
+DOCFILES="$DOCFILES ChangeLog.svn DRIVERS HELP SECURITY"
+create_docs $PKG $NAME-$VERSION
+# Build documentation files
+( cd $PKG/usr/doc/$NAME-$VERSION
+  pdflatex ifdhandler-3.tex >/dev/null
+  pdflatex $NAME.tex >/dev/null
+  rm -f *.aux *.tex *.toc *.log *.bib *.out
+
+  sed -i "s/\/usr\/local\/pcsc\/drivers/`echo $DRIVERS_DIR | sed 's/\\//\\\\\\//g'`/" DRIVERS )
+
+mkdir -p $PKG/install
+install -m 644 $CWD/doinst.sh      $PKG/install/doinst.sh
+install -m 644 $CWD/slack-desc     $PKG/install/slack-desc
+install -m 644 $CWD/slack-required $PKG/install/slack-required
+
+mkdir -p $PKG/usr/src/slackbuilds/$NAME-$VERSION
+install -m 644 $CWD/doinst.sh \
+               $PKG/usr/src/slackbuilds/$NAME-$VERSION/doinst.sh
+install -m 644 $CWD/slack-desc \
+               $PKG/usr/src/slackbuilds/$NAME-$VERSION/slack-desc
+install -m 644 $CWD/slack-required \
+               $PKG/usr/src/slackbuilds/$NAME-$VERSION/slack-required
+install -m 644 $CWD/$NAME.SlackBuild \
+               $PKG/usr/src/slackbuilds/$NAME-$VERSION/$NAME.SlackBuild
+
+cd $PKG
+PKGNAME=$NAME-$VERSION-$ARCH-$BUILD$MYIN
+makepkg -l y -c n $PKG_DIR/$PKGNAME.tgz
+cd $PKG_DIR
+md5sum $PKGNAME.tgz > $PKGNAME.tgz.md5
+cat $PKG/install/slack-desc > $PKG_DIR/$PKGNAME.txt
+
+if [ "$1" == "--cleanup" ]; then
+  rm -r $SRC
+  rm -r $PKG
+fi
+
