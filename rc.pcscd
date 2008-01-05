@@ -1,0 +1,90 @@
+#!/bin/sh
+#
+# /etc/rc.d/rc.pcscd
+#
+# Start/stop/restart the PC/SC daemon
+#
+# PC/SC daemon should be started after pcmcia and shut down
+# before it for smooth experience with PCMCIA readers
+#
+
+# Bash colors
+C_GREEN=$'\e[32;01m'
+C_YELLOW=$'\e[33;01m'
+C_RED=$'\e[31;01m'
+C_NORMAL=$'\e[0m'
+
+
+OPTIONS='-u root'
+
+ok() {
+  echo "${C_GREEN}Done${C_NORMAL}"
+}
+
+fail() {
+  echo "${C_RED}Failure${C_NORMAL}"
+}
+
+print_status() {
+  if [ $? != 0 ]; then
+    fail
+  else
+    ok
+  fi
+}
+
+SNAME='PC/SC daemon'
+NAME=pcscd
+CMD=/usr/sbin/pcscd
+CMD_OPTS=
+PIDFILE=/var/run/pcscd.pid
+
+start() {
+  if [ -x $CMD ]; then
+    if [ ! -e $PIDFILE ]; then
+      echo -n "Starting $SNAME in $CMD... "
+      /usr/sbin/update-reader.conf
+      $CMD $CMD_OPTS
+      print_status
+    else
+      echo "Starting $SNAME: Already running with PID `cat $PIDFILE`"
+    fi
+  fi
+}
+
+stop() {
+  if [ -e $PIDFILE ]; then
+    echo -n "Stopping ${SNAME}... "
+    killall $NAME 1>/dev/null 2>&1
+    print_status
+  else
+    echo "Stopping ${SNAME}: Not running"
+  fi
+}
+
+restart() {
+  stop
+  sleep 2
+  start
+}
+
+help() {
+  echo "$SNAME control"
+  echo "Usage: $0 start|stop|restart"
+  echo
+}
+
+case "$1" in
+'start')
+  start
+  ;;
+'stop')
+  stop
+  ;;
+'restart')
+  restart
+  ;;
+*)
+  help
+esac
+
