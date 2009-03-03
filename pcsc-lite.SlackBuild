@@ -7,7 +7,7 @@
 . /etc/slack-package.conf
 
 NAME=pcsc-lite
-VERSION=1.4.4
+VERSION=1.5.2
 BUILD=1
 DRIVERS_DIR=/usr/lib/pcsc/drivers
 SRVCS_DIR=/usr/lib/pcsc/services
@@ -18,7 +18,7 @@ TMP=${TMP:-/tmp}
 CWD=${CWD:-`pwd`}
 
 cd $TMP
-tar -zxvf $CWD/$NAME-$VERSION.tar.gz
+tar -jxvf $CWD/$NAME-$VERSION.tar.bz2
 SRC=$TMP/$NAME-$VERSION
 cd $SRC
 fix_source
