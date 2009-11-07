@@ -1,2 +1,4 @@
-glibc-solibs >= 2.7
-libusb >= 0.1.12
+dbus >= 1.2.14
+glibc-solibs >= 2.9
+hal >= 0.5
+e2fsprogs >= 1.41.8
