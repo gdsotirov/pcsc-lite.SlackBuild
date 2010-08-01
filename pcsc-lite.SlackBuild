@@ -7,7 +7,7 @@
 . ../slack-package.conf
 
 NAME=pcsc-lite
-VERSION=1.5.5
+VERSION=1.6.1
 BUILD=1
 DRIVERS_DIR=/usr/lib/pcsc/drivers
 SRVCS_DIR=/usr/lib/pcsc/services
