@@ -1,4 +1,4 @@
-dbus >= 1.2.14
-glibc-solibs >= 2.9
-hal >= 0.5
-e2fsprogs >= 1.41.8
+dbus >= 1.2.24
+glibc-solibs >= 2.11.1
+hal >= 0.5.14
+util-linux-ng >= 2.17.2
