@@ -13,5 +13,4 @@ config() {
 }
 
 config etc/rc.d/rc.pcscd.new
-config etc/reader.conf.d/reader.conf.new
 
