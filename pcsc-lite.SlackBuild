@@ -2,13 +2,14 @@
 #
 # SlackBuild for PC/SC Lite
 # Written by Georgi D. Sotirov <gdsotirov@dir.bg>
+# Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
 
 . ../slack-package.conf
 
 NAME=pcsc-lite
-VERSION=1.6.1
-BUILD=1
+VERSION=1.6.4
+BUILD=${BUILD:-1}
 DRIVERS_DIR=/usr/lib/pcsc/drivers
 SRVCS_DIR=/usr/lib/pcsc/services
 ARCH=${ARCH:-i486}
@@ -35,7 +36,7 @@ mkdir -p $PKG
 
 # Extract the source
 cd $TMP
-tar -jxvf $CWD/$NAME-$VERSION.tar.bz2
+tar -xvf $CWD/$NAME-$VERSION.tar.bz2
 cd $SRC
 fix_source
 
@@ -49,7 +50,6 @@ CXXFLAGS=$SLKCFLAGS \
             --localstatedir=/var \
             --mandir=/usr/man \
             --docdir=/usr/doc/$NAME-$VERSION \
-            --enable-confdir=/etc \
             --enable-ipcdir=/var/run \
             --enable-usbdropdir="$DRIVERS_DIR" \
             --enable-shared=yes \
@@ -64,7 +64,7 @@ make DESTDIR=$PKG install || exit 3
 # Additional install steps
 install -m 755 -d $PKG/etc/rc.d
 install -m 755 $CWD/rc.pcscd $PKG/etc/rc.d/rc.pcscd.new
-mv $PKG/etc/reader.conf.d/reader.conf $PKG/etc/reader.conf.d/reader.conf.new
+#mv $PKG/etc/reader.conf.d/reader.conf $PKG/etc/reader.conf.d/reader.conf.new
 # Create the directory for drivers and services (not included with this package)
 install -m 755 -d $PKG/usr/lib/pcsc/{drivers,services}
 
@@ -76,11 +76,11 @@ gzip_man $PKG
 DOCFILES="$DOCFILES ChangeLog.svn DRIVERS HELP SECURITY"
 create_docs $PKG $NAME-$VERSION
 # Build documentation files
-( cd $PKG/usr/doc/$NAME-$VERSION
-  pdflatex ifdhandler-3.tex >/dev/null
-  pdflatex $NAME.tex >/dev/null
-  rm -f *.aux *.tex *.toc *.log *.bib *.out
-  sed -i "s/\/usr\/local\/pcsc\/drivers/`echo $DRIVERS_DIR | sed 's/\\//\\\\\\//g'`/" DRIVERS )
+#( cd $PKG/usr/doc/$NAME-$VERSION
+#  pdflatex ifdhandler-3.tex >/dev/null
+#  pdflatex $NAME.tex >/dev/null
+#  rm -f *.aux *.tex *.toc *.log *.bib *.out
+#  sed -i "s/\/usr\/local\/pcsc\/drivers/`echo $DRIVERS_DIR | sed 's/\\//\\\\\\//g'`/" DRIVERS )
 rm -rf $PKG/usr/doc/$NAME-$VERSION/doc
 
 mkdir -p $PKG/install
