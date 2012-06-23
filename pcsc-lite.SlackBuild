@@ -19,7 +19,7 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: pcsc-lite.SlackBuild,v 1.6 2012/06/23 16:36:05 gsotirov Exp $
+# $Id: pcsc-lite.SlackBuild,v 1.7 2012/06/23 16:44:27 gsotirov Exp $
 #
 
 . ../../slack-package.conf
@@ -27,8 +27,8 @@
 NAME=pcsc-lite
 VERSION=1.8.3
 BUILD=${BUILD:-1}
-DRIVERS_DIR=/usr/lib/pcsc/drivers
-SRVCS_DIR=/usr/lib/pcsc/services
+DRIVERS_DIR=/usr/lib${LIBDIRSUFFIX}/pcsc/drivers
+SRVCS_DIR=/usr/lib${LIBDIRSUFFIX}/pcsc/services
 ARCH=${ARCH:-i486}
 
 TMP=${TMP:-/tmp}
@@ -66,6 +66,7 @@ CXXFLAGS=$SLKCFLAGS \
             --sysconfdir=/etc \
             --localstatedir=/var \
             --mandir=/usr/man \
+            --libdir=/usr/lib${LIBDIRSUFFIX} \
             --docdir=/usr/doc/$NAME-$VERSION \
             --enable-ipcdir=/var/run \
             --enable-usbdropdir="$DRIVERS_DIR" \
@@ -83,7 +84,7 @@ install -m 755 -d $PKG/etc/rc.d
 install -m 755 $CWD/rc.pcscd $PKG/etc/rc.d/rc.pcscd.new
 #mv $PKG/etc/reader.conf.d/reader.conf $PKG/etc/reader.conf.d/reader.conf.new
 # Create the directory for drivers and services (not included with this package)
-install -m 755 -d $PKG/usr/lib/pcsc/{drivers,services}
+install -m 755 -d $PKG/usr/lib${LIBDIRSUFFIX}/pcsc/{drivers,services}
 
 # Prepare
 bin_perms $PKG
