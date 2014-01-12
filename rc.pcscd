@@ -8,44 +8,26 @@
 # before it for smooth experience with PCMCIA readers
 #
 
-# Bash colors
-C_GREEN=$'\e[32;01m'
-C_YELLOW=$'\e[33;01m'
-C_RED=$'\e[31;01m'
-C_NORMAL=$'\e[0m'
-
-
-OPTIONS='-u root'
-
-ok() {
-  echo "${C_GREEN}Done${C_NORMAL}"
-}
-
-fail() {
-  echo "${C_RED}Failure${C_NORMAL}"
-}
-
-print_status() {
-  if [ $? != 0 ]; then
-    fail
-  else
-    ok
-  fi
-}
+. /etc/rc.d/bash_colors.sh
+. /etc/rc.d/echo_status.sh
 
 SNAME='PC/SC daemon'
 NAME=pcscd
 CMD=/usr/sbin/pcscd
 CMD_OPTS=
-PIDFILE=/var/run/pcscd.pid
+PIDFILE=/var/run/$NAME.pid
 
 start() {
   if [ -x $CMD ]; then
     if [ ! -e $PIDFILE ]; then
-      echo -n "Starting $SNAME in $CMD... "
-      /usr/sbin/update-reader.conf
+      rm -f /var/run/$NAME.pub
+      rm -f /var/run/$NAME.comm
+      echo -n "Starting $SNAME ($CMD): "
+      if [ -x /usr/sbin/update-reader.conf ]; then
+        /usr/sbin/update-reader.conf
+      fi
       $CMD $CMD_OPTS
-      print_status
+      echo_status
     else
       echo "Starting $SNAME: Already running with PID `cat $PIDFILE`"
     fi
@@ -56,7 +38,7 @@ stop() {
   if [ -e $PIDFILE ]; then
     echo -n "Stopping ${SNAME}... "
     killall $NAME 1>/dev/null 2>&1
-    print_status
+    echo_status
   else
     echo "Stopping ${SNAME}: Not running"
   fi
