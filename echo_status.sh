@@ -8,9 +8,9 @@ echo_fail() {
 
 echo_status() {
   if [ $? != 0 ]; then
-    fail
+    echo_fail
   else
-    ok
+    echo_done
   fi
 }
 
