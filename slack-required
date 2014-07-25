@@ -1,5 +1,5 @@
-dbus >= 1.4.20
-glibc-solibs >= 2.15
-python >= 2.7.3
+dbus >= 1.6.12
+glibc-solibs >= 2.17
+python >= 2.7.5
 udev >= 182
 util-linux >= 2.21.2
