@@ -19,13 +19,13 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: pcsc-lite.SlackBuild,v 1.8 2014/07/25 15:28:05 gsotirov Exp $
+# $Id: pcsc-lite.SlackBuild,v 1.9 2014/07/25 19:08:08 gsotirov Exp $
 #
 
 . ../../slack-package.conf
 
 NAME=pcsc-lite
-VERSION=1.8.6
+VERSION=1.8.11
 BUILD=${BUILD:-1}
 DRIVERS_DIR=/usr/lib${LIBDIRSUFFIX}/pcsc/drivers
 SRVCS_DIR=/usr/lib${LIBDIRSUFFIX}/pcsc/services
