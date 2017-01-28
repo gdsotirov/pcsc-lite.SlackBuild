@@ -4,13 +4,13 @@
 # Written by Georgi D. Sotirov <gdsotirov@dir.bg>
 #
 
-. ../slack-package.conf
+. ../../slack-package.conf
 
 NAME=pcsc-lite
 VERSION=1.5.5
 BUILD=1
-DRIVERS_DIR=/usr/lib/pcsc/drivers
-SRVCS_DIR=/usr/lib/pcsc/services
+DRIVERS_DIR=/usr/lib${LIBDIRSUFFIX}/pcsc/drivers
+SRVCS_DIR=/usr/lib${LIBDIRSUFFIX}/pcsc/services
 ARCH=${ARCH:-i486}
 
 TMP=${TMP:-/tmp}
@@ -48,6 +48,7 @@ CXXFLAGS=$SLKCFLAGS \
             --sysconfdir=/etc \
             --localstatedir=/var \
             --mandir=/usr/man \
+            --libdir=/usr/lib${LIBDIRSUFFIX} \
             --docdir=/usr/doc/$NAME-$VERSION \
             --enable-confdir=/etc \
             --enable-ipcdir=/var/run \
