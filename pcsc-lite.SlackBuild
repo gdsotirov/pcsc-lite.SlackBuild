@@ -81,7 +81,7 @@ make DESTDIR=$PKG install || exit 7
 
 # Additional install steps
 install -m 755 -d $PKG/etc/rc.d
-install -m 755 $CWD/rc.pcscd $PKG/etc/rc.d/rc.pcscd.new
+install -m 755 -p $CWD/rc.pcscd $PKG/etc/rc.d/rc.pcscd.new
 #mv $PKG/etc/reader.conf.d/reader.conf $PKG/etc/reader.conf.d/reader.conf.new
 # Create the directory for drivers and services (not included with this package)
 install -m 755 -d $PKG/usr/lib${LIBDIRSUFFIX}/pcsc/{drivers,services}
@@ -102,17 +102,17 @@ create_docs $PKG ${NAME}-${VERSION}
 rm -rf $PKG/usr/doc/${NAME}-${VERSION}/doc
 
 mkdir -p $PKG/install
-install -m 644 $CWD/doinst.sh      $PKG/install/doinst.sh
-install -m 644 $CWD/slack-desc     $PKG/install/slack-desc
-install -m 644 $CWD/slack-required $PKG/install/slack-required
+install -m 644 -p $CWD/doinst.sh      $PKG/install/doinst.sh
+install -m 644 -p $CWD/slack-desc     $PKG/install/slack-desc
+install -m 644 -p $CWD/slack-required $PKG/install/slack-required
 
 SBDIR=$PKG/usr/src/slackbuilds/${NAME}-${VERSION}
 mkdir -p $SBDIR
-install -m 644 $CWD/doinst.sh          $SBDIR/doinst.sh
-install -m 644 $CWD/rc.pcscd           $SBDIR/rc.pcscd
-install -m 644 $CWD/slack-desc         $SBDIR/slack-desc
-install -m 644 $CWD/slack-required     $SBDIR/slack-required
-install -m 644 $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
+install -m 644 -p $CWD/doinst.sh          $SBDIR/doinst.sh
+install -m 644 -p $CWD/rc.pcscd           $SBDIR/rc.pcscd
+install -m 644 -p $CWD/slack-desc         $SBDIR/slack-desc
+install -m 644 -p $CWD/slack-required     $SBDIR/slack-required
+install -m 644 -p $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
 
 cd $PKG
 PKGNAME=${NAME}-${VERSION}-${ARCH}-${BUILD}${MYIN}
