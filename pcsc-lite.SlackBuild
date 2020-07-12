@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Slackware build script for PC/SC Lite
-# Copyright (C) 2008-2016 Georgi D. Sotirov <gdsotirov@dir.bg>
+# Copyright (C) 2008-2020 Georgi D. Sotirov <gdsotirov@dir.bg>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,13 +19,11 @@
 #
 # Visit SlackPack at http://sotirov-bg.net/slackpack/
 #
-# $Id: pcsc-lite.SlackBuild,v 1.10 2016/09/28 17:37:52 gsotirov Exp $
-#
 
 . ../../slack-package.conf
 
 NAME=pcsc-lite
-VERSION=1.8.18
+VERSION=1.8.26
 ARCH=${ARCH:-i586}
 BUILD=${BUILD:-1}
 
@@ -72,7 +70,8 @@ CXXFLAGS="$SLKCFLAGS" \
             --enable-ipcdir=/var/run \
             --enable-usbdropdir="$DRIVERS_DIR" \
             --enable-shared=yes \
-            --enable-static=no || exit 5
+            --enable-static=no \
+            --disable-libsystemd || exit 5
 # Build with HAL by default instead of libUSB
 #           --enable-libusb
 
