@@ -9,4 +9,4 @@ pcsc-lite: reader drivers at runtime and manage connections to the readers.
 pcsc-lite: The PC/SC Lite library is used to connect to the PC/SC daemon
 pcsc-lite: from a client application and provide access to the desired
 pcsc-lite: reader.
-pcsc-lite: Packaged by Georgi D. Sotirov <gdsotirov@dir.bg>
+pcsc-lite: Packaged by Georgi D. Sotirov <gdsotirov@gmail.com>
