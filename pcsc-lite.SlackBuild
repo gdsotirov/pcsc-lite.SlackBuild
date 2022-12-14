@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Slackware build script for PC/SC Lite
-# Copyright (C) 2008-2020 Georgi D. Sotirov <gdsotirov@gmail.com>
+# Copyright (C) 2008-2022 Georgi D. Sotirov <gdsotirov@gmail.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -31,12 +31,12 @@ TMP=${TMP:-/tmp}
 CWD=${CWD:-`pwd`}
 
 if [ ! -e $TMP ]; then
-  mkdir -p $TMP # location to build the source
+  mkdir --parents $TMP # location to build the source
 fi
 
 SRC=$TMP/${NAME}-${VERSION}
 if [ -e $SRC -a -d $SRC ]; then
-  echo "Source directory '$SRC' already exists! Plaese, move it or remove it."
+  echo "Source directory '$SRC' already exists! Please, move it or remove it."
   exit 1
 fi
 
@@ -45,11 +45,11 @@ if [ -e $PKG -a -d $PKG ]; then
   echo "Package creation directory '$PKG' already exists! Please, move it or remove it."
   exit 2
 fi
-mkdir -p $PKG
+mkdir --parents $PKG
 
 # Extract the source
 cd $TMP
-tar -xvf $CWD/${NAME}-${VERSION}.tar.bz2 || exit 3
+tar --extract --verbose --file=$CWD/${NAME}-${VERSION}.tar.bz2 || exit 3
 cd $SRC
 fix_source
 
@@ -59,8 +59,8 @@ SRVCS_DIR=/usr/lib${LIBDIRSUFFIX}/pcsc/services
 # Configure
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
-./configure --build=${ARCH}-slackware-linux \
-            --host=${ARCH}-slackware-linux \
+./configure --build="${ARCH}-slackware-linux" \
+            --host="${ARCH}-slackware-linux" \
             --prefix=/usr \
             --sysconfdir=/etc \
             --localstatedir=/var \
@@ -76,15 +76,16 @@ CXXFLAGS="$SLKCFLAGS" \
 #           --enable-libusb
 
 # Build & install
-make V=1 -j4 || exit 6
+make V=1 --jobs || exit 6
 make DESTDIR=$PKG install || exit 7
 
 # Additional install steps
-install -m 755 -d $PKG/etc/rc.d
-install -m 755 -p $CWD/rc.pcscd $PKG/etc/rc.d/rc.pcscd.new
-#mv $PKG/etc/reader.conf.d/reader.conf $PKG/etc/reader.conf.d/reader.conf.new
+install --mode 755 --directory $PKG/etc/rc.d
+install --mode 755 --preserve-timestamps \
+        $CWD/rc.pcscd $PKG/etc/rc.d/rc.pcscd.new
 # Create the directory for drivers and services (not included with this package)
-install -m 755 -d $PKG/usr/lib${LIBDIRSUFFIX}/pcsc/{drivers,services}
+install --mode 755 --directory \
+        $PKG/usr/lib${LIBDIRSUFFIX}/pcsc/{drivers,services}
 
 # Prepare
 bin_perms $PKG
@@ -93,36 +94,38 @@ sbin_perms $PKG
 gzip_man $PKG
 DOCFILES="$DOCFILES ChangeLog.svn DRIVERS HELP SECURITY"
 create_docs $PKG ${NAME}-${VERSION}
-# Build documentation files
-#( cd $PKG/usr/doc/$NAME-$VERSION
-#  pdflatex ifdhandler-3.tex >/dev/null
-#  pdflatex $NAME.tex >/dev/null
-#  rm -f *.aux *.tex *.toc *.log *.bib *.out
-#  sed -i "s/\/usr\/local\/pcsc\/drivers/`echo $DRIVERS_DIR | sed 's/\\//\\\\\\//g'`/" DRIVERS )
-rm -rf $PKG/usr/doc/${NAME}-${VERSION}/doc
+rm --force --recursive $PKG/usr/doc/${NAME}-${VERSION}/doc
 
-mkdir -p $PKG/install
-install -m 644 -p $CWD/doinst.sh      $PKG/install/doinst.sh
-install -m 644 -p $CWD/slack-desc     $PKG/install/slack-desc
-install -m 644 -p $CWD/slack-required $PKG/install/slack-required
+install --mode 755 --directory $PKG/install
+install --mode 644 --preserve-timestamps \
+        $CWD/doinst.sh      $PKG/install/doinst.sh
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-desc     $PKG/install/slack-desc
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-required $PKG/install/slack-required
 
 SBDIR=$PKG/usr/src/slackbuilds/${NAME}-${VERSION}
-mkdir -p $SBDIR
-install -m 644 -p $CWD/doinst.sh          $SBDIR/doinst.sh
-install -m 644 -p $CWD/rc.pcscd           $SBDIR/rc.pcscd
-install -m 644 -p $CWD/slack-desc         $SBDIR/slack-desc
-install -m 644 -p $CWD/slack-required     $SBDIR/slack-required
-install -m 644 -p $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
+install --mode 755 --directory $SBDIR
+install --mode 644 --preserve-timestamps \
+        $CWD/doinst.sh          $SBDIR/doinst.sh
+install --mode 644 --preserve-timestamps \
+        $CWD/rc.pcscd           $SBDIR/rc.pcscd
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-desc         $SBDIR/slack-desc
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-required     $SBDIR/slack-required
+install --mode 644 --preserve-timestamps \
+        $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
 
+# Create package
 cd $PKG
 PKGNAME=${NAME}-${VERSION}-${ARCH}-${BUILD}${MYIN}
-makepkg -l y -c n $PKG_DIR/${PKGNAME}.txz
-cd $PKG_DIR
-md5sum ${PKGNAME}.txz > ${PKGNAME}.txz.md5
-cat $PKG/install/slack-desc > $PKG_DIR/${PKGNAME}.txt
+makepkg --chown n --linkadd y $PKG_DIR/${PKGNAME}.txz
+md5sum $PKG_DIR/${PKGNAME}.txz > $PKG_DIR/${PKGNAME}.txz.md5
+install --mode 644 $PKG/install/slack-desc $PKG_DIR/${PKGNAME}.txt
 
 if [ "$1" == "--cleanup" ]; then
-  rm -r $SRC
-  rm -r $PKG
+  rm --recursive $SRC
+  rm --recursive $PKG
 fi
 
