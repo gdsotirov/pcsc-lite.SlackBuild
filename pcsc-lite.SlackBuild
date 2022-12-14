@@ -23,7 +23,7 @@
 . ../../slack-package.conf
 
 NAME=pcsc-lite
-VERSION=1.8.26
+VERSION=1.9.9
 ARCH=${ARCH:-i586}
 BUILD=${BUILD:-1}
 
@@ -94,7 +94,6 @@ sbin_perms $PKG
 gzip_man $PKG
 DOCFILES="$DOCFILES ChangeLog.svn DRIVERS HELP SECURITY"
 create_docs $PKG ${NAME}-${VERSION}
-rm --force --recursive $PKG/usr/doc/${NAME}-${VERSION}/doc
 
 install --mode 755 --directory $PKG/install
 install --mode 644 --preserve-timestamps \
