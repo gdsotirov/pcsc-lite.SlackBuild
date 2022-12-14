@@ -1,3 +1,2 @@
-eudev >= 3.1.5
-glibc-solibs >= 2.23
-python >= 2.7.11
+aaa_glibc-solibs >= 2.33
+eudev >= 3.2.11
