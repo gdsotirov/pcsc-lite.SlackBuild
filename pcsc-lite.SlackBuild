@@ -23,7 +23,7 @@
 . ../../slack-package.conf
 
 NAME=pcsc-lite
-VERSION=2.1.0
+VERSION=2.2.1
 ARCH=${ARCH:-i586}
 BUILD=${BUILD:-1}
 
@@ -49,35 +49,31 @@ mkdir --parents $PKG
 
 # Extract the source
 cd $TMP
-tar --extract --verbose --file=$CWD/${NAME}-${VERSION}.tar.bz2 || exit 3
+tar --extract --verbose --file=$CWD/${NAME}-${VERSION}.tar.xz || exit 3
 cd $SRC
 fix_source
 
-DRIVERS_DIR=/usr/lib${LIBDIRSUFFIX}/pcsc/drivers
-SRVCS_DIR=/usr/lib${LIBDIRSUFFIX}/pcsc/services
-
 # Configure
 CFLAGS="$SLKCFLAGS" \
-CXXFLAGS="$SLKCFLAGS" \
-./configure --build="${ARCH}-slackware-linux" \
-            --host="${ARCH}-slackware-linux" \
-            --prefix=/usr \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --mandir=/usr/man \
-            --libdir=/usr/lib${LIBDIRSUFFIX} \
-            --docdir=/usr/doc/${NAME}-${VERSION} \
-            --enable-ipcdir=/var/run \
-            --enable-usbdropdir="$DRIVERS_DIR" \
-            --enable-shared=yes \
-            --enable-static=no \
-            --disable-libsystemd || exit 5
-# Build with HAL by default instead of libUSB
-#           --enable-libusb
+meson setup \
+  --prefix /usr \
+  --libdir lib${LIBDIRSUFFIX} \
+  -Dipcdir=/var/run \
+  -Dlibsystemd=false \
+  -Dlibudev=true \
+  -Dlibusb=true \
+  -Dpolkit=false \
+  -Dserial=false \
+  -Dusb=true \
+  -Dusbdropdir=/usr/lib${DRIVERS_DIR}/pcsc/drivers \
+  builddir || exit 4
+cd builddir
 
 # Build & install
-make V=1 --jobs || exit 6
-make DESTDIR=$PKG install || exit 7
+CFLAGS="$SLKCFLAGS" \
+meson compile --verbose || exit 5
+DESTDIR=$PKG \
+meson install || exit 6
 
 # Additional install steps
 install --mode 755 --directory $PKG/etc/rc.d
