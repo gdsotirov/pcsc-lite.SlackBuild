@@ -53,16 +53,22 @@ tar --extract --verbose --file=$CWD/${NAME}-${VERSION}.tar.xz || exit 3
 cd $SRC
 fix_source
 
+# Apply patch
+if [ -e $CWD/${NAME}-${VERSION}.diff ]; then
+  patch --backup --strip=1 --suffix=.orig < $CWD/${NAME}-${VERSION}.diff || exit 4
+fi
+
 # Configure
 CFLAGS="$SLKCFLAGS" \
 meson setup \
   --prefix /usr \
   --libdir lib${LIBDIRSUFFIX} \
+  --mandir man \
   -Dipcdir=/var/run \
   -Dlibsystemd=false \
   -Dlibudev=true \
-  -Dlibusb=true \
-  -Dpolkit=false \
+  -Dlibusb=false \
+  -Dpolkit=true \
   -Dserial=false \
   -Dusb=true \
   -Dusbdropdir=/usr/lib${DRIVERS_DIR}/pcsc/drivers \
@@ -74,6 +80,7 @@ CFLAGS="$SLKCFLAGS" \
 meson compile --verbose || exit 5
 DESTDIR=$PKG \
 meson install || exit 6
+cd $SRC
 
 # Additional install steps
 install --mode 755 --directory $PKG/etc/rc.d
@@ -88,7 +95,7 @@ bin_perms $PKG
 sbin_perms $PKG
 ( cd $PKG; strip_bin; strip_lib )
 gzip_man $PKG
-DOCFILES="$DOCFILES ChangeLog.svn DRIVERS HELP SECURITY"
+DOCFILES="$DOCFILES HELP SECURITY"
 create_docs $PKG ${NAME}-${VERSION}
 
 install --mode 755 --directory $PKG/install
@@ -98,6 +105,8 @@ install --mode 644 --preserve-timestamps \
         $CWD/slack-desc     $PKG/install/slack-desc
 install --mode 644 --preserve-timestamps \
         $CWD/slack-required $PKG/install/slack-required
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-suggests $PKG/install/slack-suggests
 
 SBDIR=$PKG/usr/src/slackbuilds/${NAME}-${VERSION}
 install --mode 755 --directory $SBDIR
@@ -109,6 +118,12 @@ install --mode 644 --preserve-timestamps \
         $CWD/slack-desc         $SBDIR/slack-desc
 install --mode 644 --preserve-timestamps \
         $CWD/slack-required     $SBDIR/slack-required
+install --mode 644 --preserve-timestamps \
+        $CWD/slack-suggests     $SBDIR/slack-suggests
+if [ -e $CWD/${NAME}-${VERSION}.diff ]; then
+install --mode 644 --preserve-timestamps \
+        $CWD/${NAME}-${VERSION}.diff $SBDIR/${NAME}-${VERSION}.diff
+fi
 install --mode 644 --preserve-timestamps \
         $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
 
