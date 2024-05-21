@@ -1,0 +1,8 @@
+elogind >= 246.10
+glib2 >= 2.70.3
+libcap >= 2.63
+libffi >= 3.3
+pcre >= 8.45
+polkit >= 0.120
+util-linux >= 2.37.3
+zlib >= 1.2.11
