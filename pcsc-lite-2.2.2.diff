@@ -1,0 +1,39 @@
+# See https://github.com/LudovicRousseau/PCSC/issues/187
+diff -urNad pcsc-lite-2.2.2-orig/meson.build pcsc-lite-2.2.2/meson.build
+--- pcsc-lite-2.2.2-orig/meson.build	2024-05-20 18:42:53.000000000 +0300
++++ pcsc-lite-2.2.2/meson.build	2024-05-22 14:37:44.021005072 +0300
+@@ -106,6 +106,9 @@
+   features += 'libusb'
+ endif
+ 
++cc = meson.get_compiler('c')
++dl_deps = cc.find_library('dl', required: false)
++
+ polkit_dep = dependency('polkit-gobject-1', required : get_option('polkit'))
+ if polkit_dep.found()
+   conf_data.set('HAVE_POLKIT', true)
+@@ -128,7 +131,7 @@
+ endif
+ conf_data.set_quoted('PCSC_ARCH', pcsc_arch)
+ 
+-pcscd_dep += [polkit_dep, systemd_dep]
++pcscd_dep += [polkit_dep, systemd_dep, dl_deps]
+ 
+ features +=  pcsc_arch
+ features += target_machine.cpu()
+@@ -173,6 +176,7 @@
+   ]
+ libpcsclite = library('pcsclite',
+   libpcsclite_src,
++  dependencies : dl_deps,
+   include_directories : incdir,
+   soversion : 1,
+   install : true)
+@@ -185,6 +189,7 @@
+ # libpcscspy library
+ library('pcscspy',
+   sources : ['src/spy/libpcscspy.c', 'src/sys_unix.c'],
++  dependencies : dl_deps,
+   include_directories : incdir,
+   soversion : 0,
+   install : true)
