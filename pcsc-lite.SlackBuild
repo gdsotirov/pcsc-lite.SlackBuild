@@ -23,7 +23,7 @@
 . ../../slack-package.conf
 
 NAME=pcsc-lite
-VERSION=2.2.3
+VERSION=2.3.0
 ARCH=${ARCH:-i586}
 BUILD=${BUILD:-1}
 
