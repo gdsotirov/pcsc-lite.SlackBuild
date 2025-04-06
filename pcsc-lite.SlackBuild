@@ -23,7 +23,7 @@
 . ../../slack-package.conf
 
 NAME=pcsc-lite
-VERSION=2.3.2
+VERSION=2.3.3
 ARCH=${ARCH:-i586}
 BUILD=${BUILD:-1}
 
@@ -60,6 +60,7 @@ fi
 
 # Configure
 CFLAGS="$SLKCFLAGS" \
+LDFLAGS="-lpthread" \
 meson setup \
   --prefix /usr \
   --libdir lib${LIBDIRSUFFIX} \
