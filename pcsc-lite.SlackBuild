@@ -20,42 +20,43 @@
 # Visit SlackPack at https://sotirov-bg.net/slackpack/
 #
 
+# shellcheck disable=SC1091
 . ../../slack-package.conf
 
 NAME=pcsc-lite
-VERSION=2.5.1
+VERSION=2.5.2
 ARCH=${ARCH:-i586}
 BUILD=${BUILD:-1}
 
 TMP=${TMP:-/tmp}
-CWD=${CWD:-`pwd`}
+CWD=${CWD:-$(pwd)}
 
-if [ ! -e $TMP ]; then
-  mkdir --parents $TMP # location to build the source
+if [ ! -e "$TMP" ]; then
+  mkdir --parents "$TMP" # location to build the source
 fi
 
-SRC=$TMP/${NAME}-${VERSION}
-if [ -e $SRC -a -d $SRC ]; then
+SRC="$TMP"/${NAME}-${VERSION}
+if [ -e "$SRC" ] && [ -d "$SRC" ]; then
   echo "Source directory '$SRC' already exists! Please, move it or remove it."
   exit 1
 fi
 
-PKG=$TMP/package-${NAME}
-if [ -e $PKG -a -d $PKG ]; then
+PKG="$TMP"/package-${NAME}
+if [ -e "$PKG" ] && [ -d "$PKG" ]; then
   echo "Package creation directory '$PKG' already exists! Please, move it or remove it."
   exit 2
 fi
-mkdir --parents $PKG
+mkdir --parents "$PKG"
 
 # Extract the source
-cd $TMP
-tar --extract --verbose --file=$CWD/${NAME}-${VERSION}.tar.xz || exit 3
-cd $SRC
+cd "$TMP" || exit 31
+tar --extract --verbose --file="$CWD/${NAME}-${VERSION}.tar.xz" || exit 32
+cd "$SRC" || exit 33
 fix_source
 
 # Apply patch
-if [ -e $CWD/${NAME}-${VERSION}.diff ]; then
-  patch --backup --strip=1 --suffix=.orig < $CWD/${NAME}-${VERSION}.diff || exit 4
+if [ -e "$CWD/${NAME}-${VERSION}.diff" ]; then
+  patch --backup --strip=1 --suffix=.orig < "$CWD/${NAME}-${VERSION}.diff" || exit 4
 fi
 
 # Configure
@@ -63,7 +64,7 @@ CFLAGS="$SLKCFLAGS" \
 LDFLAGS="-lpthread" \
 meson setup \
   --prefix /usr \
-  --libdir lib${LIBDIRSUFFIX} \
+  --libdir "lib${LIBDIRSUFFIX}" \
   --mandir man \
   -Dipcdir=/var/run \
   -Dlibsystemd=false \
@@ -72,71 +73,59 @@ meson setup \
   -Dpolkit=true \
   -Dserial=false \
   -Dusb=true \
-  -Dusbdropdir=/usr/lib${DRIVERS_DIR}/pcsc/drivers \
+  -Dusbdropdir="/usr/lib${DRIVERS_DIR}/pcsc/drivers" \
   builddir || exit 4
-cd builddir
+cd builddir || exit 41
 
 # Build & install
 CFLAGS="$SLKCFLAGS" \
 meson compile --verbose || exit 5
 DESTDIR=$PKG \
 meson install || exit 6
-cd $SRC
+cd "$SRC" || exit 61
 
 # Additional install steps
-install --mode 755 --directory $PKG/etc/rc.d
-install --mode 755 --preserve-timestamps \
-        $CWD/rc.pcscd $PKG/etc/rc.d/rc.pcscd.new
-# Create the directory for drivers and services (not included with this package)
-install --mode 755 --directory \
-        $PKG/usr/lib${LIBDIRSUFFIX}/pcsc/{drivers,services}
+install --mode 755 --directory "$PKG/etc/rc.d"
+install --mode 755 --preserve-timestamps "$CWD/rc.pcscd $PKG/etc/rc.d/rc.pcscd.new"
+# Create the directories for drivers and services (not included with this package)
+install --mode 755 --directory "$PKG/usr/lib${LIBDIRSUFFIX}/pcsc/drivers"
+install --mode 755 --directory "$PKG/usr/lib${LIBDIRSUFFIX}/pcsc/services"
 
 # Prepare
-bin_perms $PKG
-sbin_perms $PKG
-( cd $PKG; strip_bin; strip_lib )
-gzip_man $PKG
+bin_perms "$PKG"
+sbin_perms "$PKG"
+( cd "$PKG" || exit; strip_bin; strip_lib )
+gzip_man "$PKG"
 DOCFILES="$DOCFILES HELP SECURITY"
-create_docs $PKG ${NAME}-${VERSION}
+create_docs "$PKG" ${NAME}-${VERSION}
 
-install --mode 755 --directory $PKG/install
-install --mode 644 --preserve-timestamps \
-        $CWD/doinst.sh      $PKG/install/doinst.sh
-install --mode 644 --preserve-timestamps \
-        $CWD/slack-desc     $PKG/install/slack-desc
-install --mode 644 --preserve-timestamps \
-        $CWD/slack-required $PKG/install/slack-required
-install --mode 644 --preserve-timestamps \
-        $CWD/slack-suggests $PKG/install/slack-suggests
+install --mode 755 --directory "$PKG/install"
+install --mode 644 --preserve-timestamps "$CWD/doinst.sh"      "$PKG/install/doinst.sh"
+install --mode 644 --preserve-timestamps "$CWD/slack-desc"     "$PKG/install/slack-desc"
+install --mode 644 --preserve-timestamps "$CWD/slack-required" "$PKG/install/slack-required"
+install --mode 644 --preserve-timestamps "$CWD/slack-suggests" "$PKG/install/slack-suggests"
 
-SBDIR=$PKG/usr/src/slackbuilds/${NAME}-${VERSION}
-install --mode 755 --directory $SBDIR
-install --mode 644 --preserve-timestamps \
-        $CWD/doinst.sh          $SBDIR/doinst.sh
-install --mode 644 --preserve-timestamps \
-        $CWD/rc.pcscd           $SBDIR/rc.pcscd
-install --mode 644 --preserve-timestamps \
-        $CWD/slack-desc         $SBDIR/slack-desc
-install --mode 644 --preserve-timestamps \
-        $CWD/slack-required     $SBDIR/slack-required
-install --mode 644 --preserve-timestamps \
-        $CWD/slack-suggests     $SBDIR/slack-suggests
-if [ -e $CWD/${NAME}-${VERSION}.diff ]; then
-install --mode 644 --preserve-timestamps \
-        $CWD/${NAME}-${VERSION}.diff $SBDIR/${NAME}-${VERSION}.diff
+SBDIR="$PKG/usr/src/slackbuilds/${NAME}-${VERSION}"
+install --mode 755 --directory "$SBDIR"
+install --mode 644 --preserve-timestamps "$CWD/doinst.sh"          "$SBDIR/doinst.sh"
+install --mode 644 --preserve-timestamps "$CWD/rc.pcscd"           "$SBDIR/rc.pcscd"
+install --mode 644 --preserve-timestamps "$CWD/slack-desc"         "$SBDIR/slack-desc"
+install --mode 644 --preserve-timestamps "$CWD/slack-required"     "$SBDIR/slack-required"
+install --mode 644 --preserve-timestamps "$CWD/slack-suggests"     "$SBDIR/slack-suggests"
+if [ -e "$CWD/${NAME}-${VERSION}.diff" ]; then
+  install --mode 644 --preserve-timestamps "$CWD/${NAME}-${VERSION}.diff" "$SBDIR/${NAME}-${VERSION}.diff"
 fi
-install --mode 644 --preserve-timestamps \
-        $CWD/${NAME}.SlackBuild $SBDIR/${NAME}.SlackBuild
+install --mode 644 --preserve-timestamps "$CWD/${NAME}.SlackBuild" "$SBDIR/${NAME}.SlackBuild"
 
 # Create package
-cd $PKG
-PKGNAME=${NAME}-${VERSION}-${ARCH}-${BUILD}${MYIN}
-makepkg --chown n --linkadd y $PKG_DIR/${PKGNAME}.txz
-md5sum $PKG_DIR/${PKGNAME}.txz > $PKG_DIR/${PKGNAME}.txz.md5
-install --mode 644 $PKG/install/slack-desc $PKG_DIR/${PKGNAME}.txt
+cd "$PKG" || exit 8
+PKGNAME="${NAME}-${VERSION}-${ARCH}-${BUILD}${MYIN}"
+makepkg --chown n --linkadd y "$PKG_DIR/${PKGNAME}.txz"
+md5sum "$PKG_DIR/${PKGNAME}.txz" > "$PKG_DIR/${PKGNAME}.txz.md5"
+install --mode 644 "$PKG/install/slack-desc $PKG_DIR/${PKGNAME}.txt"
 
-if [ "$1" == "--cleanup" ]; then
-  rm --recursive $SRC
-  rm --recursive $PKG
+if [ "$1" = "--cleanup" ]; then
+  rm --recursive "$SRC"
+  rm --recursive "$PKG"
 fi
 
